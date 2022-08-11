@@ -1,7 +1,7 @@
 ---
-- name: Утановка Docker
+- name: Installation Docker
   block:
-    - name: Добавляем universe
+    - name: Adding universe
       apt_repository:
         repo: "deb http://us.archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} universe"
         state: present
@@ -18,13 +18,13 @@
         update-cache: true
         cache_valid_time: 86400
 
-    - name: Добавление ключа Docker
+    - name: Adding Docker key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
         keyring: /usr/share/keyrings/docker-archive-keyring.gpg
 
-    - name: Установка стабильного репозитория
+    - name: Installing stable repo
       apt_repository:
         repo: >
           deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]
@@ -34,47 +34,47 @@
         update-cache: true
         filename: docker
 
-    - name: Установка Docker-ce
+    - name: Install Docker-ce
       apt:
         name: docker-ce
         update-cache: true
 
-    - name: Проверка что Docker установлен и перезагружен
+    - name: Check Docker installed and rebooted
       service:
         name: docker
         state: restarted
         enabled: true
   become: true
 
-- name: Установка Docker-compose
+- name: Install Docker-compose
   block:
-    - name: Получение последней версии Docker-compose
+    - name: Get latest version Docker-compose
       uri:
         url: https://api.github.com/repos/docker/compose/releases/latest
         body_format: json
       register: page
 
-    - name: Установка Docker-compose
+    - name: Install Docker-compose
       get_url:
         url: "https://github.com/docker/compose/releases/download/{{ page.json.tag_name }}/docker-compose-Linux-x86_64"
         dest: /usr/local/bin/docker-compose
         mode: 0755
   become: true
 
-- name: Настройка дополнительных пакетов python
+- name: Install additional packages python
   block:
-    - name: Установка pip пакетов
+    - name: install pip packages
       pip:
         name: docker
 
-- name: Завершение установки
+- name: Finishing the install
   block:
-    - name: Добавление пользователя в группу Docker
+    - name: Adding user to Dockers group
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: true
 
-    - name: Перезагрузка
+    - name: reboot
       reboot:
   become: true
