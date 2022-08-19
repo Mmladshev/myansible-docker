@@ -1,0 +1,30 @@
+---
+- name: "[{{ name }}] Конфигурация секрет"
+  block:
+    - name: "[{{ name }}] Создаем секрет"
+      include: "../secret.yml"
+  rescue:
+    - name: "[{{ name }}] Удаляем сервис"
+      community.docker.docker_swarm_service:
+        name: "{{ name }}"
+        state: absent
+    - name: "[{{ name }}] Создаем секрет"
+      include: "../secret.yml"
+
+- name: "[{{ name }}] Выкладка сервиса"
+  block:
+    - name: "[{{ name }}] Выкладка сервиса"
+      community.docker.docker_swarm_service:
+        name: "{{ name }}"
+        image: localhost:5000/api:latest
+        state: present
+        networks:
+          - name: "{{ networkName }}"
+        publish:
+          - mode: ingress
+          - protocol: tcp
+          - published_port: 3002
+          - target_port: 3002
+        secrets:
+          - secret_name: "{{ name }}.env"
+          - filename: "/opt/app/.env"
