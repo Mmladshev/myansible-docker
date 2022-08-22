@@ -7,7 +7,7 @@
     - name: "[{{ name }}] Выкладка сервиса"
       community.docker.docker_swarm_service:
         name: "{{ name }}"
-        image: "{{ registry_name }}{{ name }}:{{ version }}"
+        image: "{{ registry_name }}{{ name }}:{{ name.latest }}"
         state: present
         networks:
           - name: app_network
